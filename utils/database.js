@@ -13,14 +13,12 @@ export const connectToDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI, {
             dbName: 'promptopia',
-            useNewUrlParse: true,
-            useUnifiedTopolofy: true
+            // useNewUrlParse: true,
+            // useUnifiedTopolofy: true
         })
-
         isConnected = true
         console.log('MongoDB connected')
     } catch (error) {
         console.log(error)
     }
 }
-

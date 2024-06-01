@@ -5,20 +5,19 @@ import { useState, useEffect } from 'react'
 import { signIn, signOut, useSession, getProviders } from 'next-auth/react'
 
 const Nav = () => {
-    const isUserLogin = true
+    const { data: session } = useSession()
+    const isUserLogin = session?.user ?? false
     const [providers, setProviders] = useState(null)
     const [toggleDropdown, setToggleDropdown] = useState(false)
 
+    const loadProviders = async () => {
+        const res = await getProviders()
+        setProviders(res)
+    }
+
     useEffect(() => {
-        const setProviders = async () => {
-            const res = await getProviders()
-
-            setProviders(res)
-        }
-
-        // setProviders()
+        loadProviders()
     }, [])
-
 
     return (
         <nav className='flex-between w-full mb-16 pt-3'>
@@ -33,7 +32,6 @@ const Nav = () => {
                 <p className='logo_text'>Promptopia</p>
             </Link>
 
-
             <div className='sm:flex hidden'>
                 {isUserLogin ? (
                     <div className='flex gap-3 md:gap-5'>
@@ -45,7 +43,7 @@ const Nav = () => {
 
                         <Link href={"/profile"}>
                             <Image
-                                src={"/assets/images/logo.svg"}
+                                src={session?.user.image ?? "/assets/images/logo.svg"}
                                 width={37}
                                 height={37}
                                 className='rounded-full'
@@ -54,20 +52,18 @@ const Nav = () => {
                             />
                         </Link>
                     </div>
-                ) :
-                    (
-                        <>{
-                            providers && Object.values(providers).map(provider => (
-                                <button
-                                    type="button"
-                                    key={provider.name}
-                                    onClick={() => signIn(provider.id)}
-                                    className='black_btn'>
-                                    Sign In
-                                </button>
-                            ))
-                        }</>
-                    )}
+                ) : (providers && Object.values(providers).map(provider => {
+                    return (
+                        <button
+                            type="button"
+                            key={provider.name}
+                            onClick={() => signIn(provider.id)}
+                            className='black_btn'>
+                            Sign In
+                        </button>
+                    )
+                }))
+                }
             </div>
 
             {/* Mobile Navigation */}
@@ -75,7 +71,7 @@ const Nav = () => {
                 {isUserLogin ? (
                     <div className="flex">
                         <Image
-                            src={"/assets/images/logo.svg"}
+                            src={session?.user.image ?? "/assets/images/logo.svg"}
                             width={37}
                             height={37}
                             className='rounded-full'
