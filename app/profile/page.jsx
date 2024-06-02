@@ -3,9 +3,11 @@
 import Profile from "@components/Profile"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { Router } from "next/router"
 import { useState, useEffect } from 'react'
 
 const MyProfile = () => {
+    const router = useRouter()
     const { data: session } = useSession()
     const [prompts, setPrompts] = useState([])
 
@@ -19,8 +21,21 @@ const MyProfile = () => {
         if (session?.user) fetchPrompts()
     }, [session?.user])
 
-    const handleEdit = async () => { }
-    const handleDelete = async () => { }
+    const handleEdit = async (post) => {
+        return router.push(`update-prompt/${post._id}`)
+    }
+    const handleDelete = async (post) => {
+        const isConfirm = confirm(`Do you want to delete post id: ${post._id}`)
+
+        if (isConfirm) {
+            await fetch(`api/prompt/${post._id}`, {
+                method: 'DELETE'
+            })
+
+            const newPrompts = prompts.filter(p => p._id !== post._id)
+            return setPrompts(newPrompts)
+        }
+    }
 
     return (
         <Profile
